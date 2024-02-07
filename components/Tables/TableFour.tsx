@@ -1,4 +1,4 @@
-import { BRAND } from "@/types/brand";
+import { BRAND } from "@/shared/types/brand";
 import Image from "next/image";
 import DropdownDefault from "../Dropdowns/DropdownDefault";
 

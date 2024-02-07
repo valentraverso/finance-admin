@@ -1,4 +1,4 @@
-import { Package } from "@/types/package";
+import { Package } from "@/shared/types/package";
 
 const packageData: Package[] = [
   {

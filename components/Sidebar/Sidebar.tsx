@@ -21,6 +21,8 @@ import {
   AlertCircle,
   SwissFranc,
   MousePointerClick,
+  Activity,
+  Plus,
 } from "lucide-react";
 import { useSidebar } from "./use-sidebar";
 import { cn } from "@/app/libs/utlis";
@@ -46,16 +48,9 @@ const Sidebar = ({}: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="relative flex w-full items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <Link className="flex items-center" href="/">
-          <Image
-            className="h-6 w-6 rounded-md"
-            width={400}
-            height={400}
-            src={"/images/logo/logo-icon.png"}
-            alt="Logo"
-          />
           {isSidebarOpen && (
             <h1 className=" ml-2 text-xl font-semibold text-white">
-              ShakibAdmin
+              Finance Admin
             </h1>
           )}
         </Link>
@@ -78,13 +73,13 @@ const Sidebar = ({}: SidebarProps) => {
               {/* <!-- Menu Item Dashboard --> */}
               <li>
                 <ExpandMenu
-                  name="Homepage"
-                  icon={<HomeIcon className="  h-6 w-6 hover:text-white" />}
+                  name="Actions"
+                  icon={<Activity className="h-6 w-6 hover:text-white" />}
                 >
                   <LinkItem
-                    icon={<ShoppingBag />}
-                    title="E-commerce"
-                    href="/"
+                    icon={<Plus />}
+                    title="Create movement"
+                    href="/actions/create"
                   />
                 </ExpandMenu>
               </li>
