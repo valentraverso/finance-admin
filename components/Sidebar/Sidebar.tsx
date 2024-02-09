@@ -78,7 +78,7 @@ const Sidebar = ({}: SidebarProps) => {
                 >
                   <LinkItem
                     icon={<Plus />}
-                    title="Create movement"
+                    title="Create transaction"
                     href="/actions/create"
                   />
                 </ExpandMenu>
