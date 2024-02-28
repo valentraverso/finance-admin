@@ -28,6 +28,7 @@
     "eslint-config-next": "latest",
     "jsvectormap": "^1.5.3",
     "lucide-react": "^0.292.0",
+    "multer": "^1.4.5-lts.1",
     "next": "latest",
     "postcss": "8.4.27",
     "react": "latest",

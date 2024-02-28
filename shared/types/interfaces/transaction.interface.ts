@@ -5,4 +5,5 @@ export interface ITransactionEntity {
     type: number;
     idAccount: string;
     balance: number;
+    date: Date;
 }

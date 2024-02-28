@@ -1,18 +1,27 @@
 "use client";
 
 import getAccounts from "@/api/accounts/getAccounts";
+import getCategories from "@/api/categories/getCategories";
+import postTransaction from "@/api/transactions/postTransaction";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { ITransactionEntity } from "@/shared/types/interfaces/transaction.interface";
 import { useQuery } from "@tanstack/react-query";
 import { DatePicker, NumberInput, Select, SelectItem, TextInput } from "@tremor/react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { SearchSelect, SearchSelectItem } from "@tremor/react";
+import { useEffect, useState } from "react";
 
 export default function CreateMovement() {
+  const [categories, setCategories] = useState<null | Array<Record<string, string>>>(null);
+
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
+    control,
   } = useForm();
+
+  const values = watch();
 
   // Fetch accounts
   const { data: accountsData, isLoading } = useQuery(["accounts"], async () => {
@@ -21,53 +30,150 @@ export default function CreateMovement() {
     return response;
   });
 
+  // Fetch categories
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery(["categories"], async () => {
+    const response = await getCategories();
+
+    return response.data;
+  });
+
+  function getAllValues(obj: any): Array<any> {
+    const values = [];
+
+    for (const value of Object.values(obj)) {
+      if (typeof value === "object") {
+        values.push(...getAllValues(value)); // Recursively call for nested objects
+      } else {
+        values.push(value);
+      }
+    }
+
+    return values;
+  }
+
+  function getAllValuesWithKeyNumbers(obj: any, prefix = ""): any {
+    const results = [];
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        const currentKey = prefix ? `${prefix}.${key}` : key; // Combine key numbers
+
+        if (typeof value === "object") {
+          results.push(...getAllValuesWithKeyNumbers(value, currentKey));
+        } else {
+          results.push({ [currentKey]: value }); // Create object with key and value
+        }
+      }
+    }
+
+    return results;
+  }
+
+  useEffect(() => {
+    if ((values !== null || values !== "") && values.type) {
+      const filterByType = categoriesData.find((item: any) => item.type == values.type);
+      const arrayWithCategories = getAllValuesWithKeyNumbers(filterByType.categories);
+      setCategories(arrayWithCategories);
+    }
+  }, [values.type]);
+
   // Handle submit
-  const onSubmit: SubmitHandler<ITransactionEntity> = (data) => {};
+  const onSubmit = async (data: any) => {
+    const response = await postTransaction({ data });
+  };
 
   return (
     <div className="mx-auto max-w-270">
       <Breadcrumb pageName="Create transaction" />
-
       <div className="col-span-5 xl:col-span-3">
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="p-7">
-            <form onSubmit={() => handleSubmit(onSubmit)}>
+            <form
+              onSubmit={handleSubmit((data: any) => {
+                onSubmit(data);
+              })}
+            >
               <div className="mb-5.5">
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="fullName">
                   Account
                 </label>
-                <Select {...register("accountId", { required: { value: true, message: "This value is required." } })}>
-                  {!isLoading &&
-                    accountsData.data.map((account: any, i: number) => (
-                      <SelectItem value={account._id} key={i}>
-                        {account.name} - {account?.IBAN} (Currency: {account.currency})
-                      </SelectItem>
-                    ))}
-                </Select>
+                <Controller
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "This value is required.",
+                    },
+                  }}
+                  name="idAccount"
+                  render={({ field: { ...field } }) => (
+                    <Select {...field}>
+                      {!isLoading &&
+                        accountsData.data.map((account: any, i: number) => (
+                          <SelectItem value={account._id} key={i}>
+                            {account.name} - {account?.IBAN} (Currency: {account.currency})
+                          </SelectItem>
+                        ))}
+                    </Select>
+                  )}
+                />
+                {errors?.idAccount && <span>{!errors?.idAccount?.message}</span>}
               </div>
 
               <div className="mb-5.5">
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="phoneNumber">
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="type">
                   Type
                 </label>
-                <Select
-                  {...register("type", { required: { value: true, message: "This value is required" } })}
-                  required
-                >
-                  <SelectItem value="0">Egress</SelectItem>
-                  <SelectItem value="1">Income</SelectItem>
-                </Select>
+                <Controller
+                  control={control}
+                  name="type"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "This value is required.",
+                    },
+                  }}
+                  render={({ field: { ref, ...field } }) => (
+                    <Select {...field}>
+                      <SelectItem value="0">Egress</SelectItem>
+                      <SelectItem value="1">Income</SelectItem>
+                    </Select>
+                  )}
+                />
+                {errors?.type && <span>{!errors?.type?.message}</span>}
               </div>
 
               <div className="mb-5.5">
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="phoneNumber">
                   Category
                 </label>
-                <NumberInput
-                  {...register("category", { required: { value: true, message: "This value is required." }, max: 50 })}
-                  enableStepper={false}
-                  placeholder="Ej: 1.2"
+                <Controller
+                  control={control}
+                  name="categorie"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "This value is required.",
+                    },
+                  }}
+                  render={({ field: { ref, ...field } }) => (
+                    <SearchSelect
+                      {...field}
+                    >
+                      {categories ? (
+                        categories.map((categories: Record<string, string>, i: number) => (
+                          <SearchSelectItem key={i} value={Object.keys(categories)[0]}>
+                            {Object.keys(categories)[0]} - {Object.values(categories)}
+                          </SearchSelectItem>
+                        ))
+                      ) : (
+                        <span>Please select a type of transaction</span>
+                      )}
+                    </SearchSelect>
+                  )}
                 />
+                {errors?.category && <span>{!errors?.category?.message}</span>}
               </div>
 
               <div className="mb-5.5">
@@ -78,7 +184,9 @@ export default function CreateMovement() {
                   {...register("amount", { required: { value: true, message: "This value is required" } })}
                   enableStepper={false}
                   placeholder="Ej: 500"
+                  step="any"
                 />
+                {errors?.amount && <span>{!errors?.amount?.message}</span>}
               </div>
 
               <div className="mb-5.5">
@@ -92,23 +200,41 @@ export default function CreateMovement() {
                   })}
                   placeholder="Ej: Buy coffee"
                 />
+                {errors?.description && <span>{!errors?.description?.message}</span>}
               </div>
 
               <div className="mb-5.5">
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="phoneNumber">
                   Date
                 </label>
-                <DatePicker
-                  {...register("date", { required: { value: true, message: "This value is required." } })}
-                  enableYearNavigation={true}
-                  enableClear={true}
+                <Controller
+                  control={control}
+                  name="date"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "This value is required.",
+                    },
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <DatePicker
+                      onValueChange={(value: any) => {
+                        onChange(value);
+                      }}
+                      enableYearNavigation={true}
+                      enableClear={true}
+                    />
+                  )}
                 />
+                {errors?.date && <span>{!errors?.date?.message}</span>}
               </div>
 
               <div className="flex justify-end gap-4.5">
                 <button
                   className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                  type="submit"
+                  onClick={() => {
+                    console.log("cancelado");
+                  }}
                 >
                   Cancel
                 </button>

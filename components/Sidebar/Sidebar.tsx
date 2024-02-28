@@ -54,9 +54,9 @@ const Sidebar = ({}: SidebarProps) => {
             </h1>
           )}
         </Link>
-        {isSidebarOpen && (
+        {/* {isSidebarOpen && (
           <MenuIcon onClick={toggleSidebar} className="h-6 w-6" />
-        )}
+        )} */}
       </div>
       {/* <!-- SIDEBAR HEADER --> */}
 

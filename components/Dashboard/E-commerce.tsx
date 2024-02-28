@@ -8,13 +8,28 @@ import TableOne from "../Tables/TableOne";
 // without this the component renders on server and throws an error
 import dynamic from "next/dynamic";
 import DataCard from "../Cards/DataCard";
+import AccountBalance from "../AccountsBalance/AccountsBalance";
+import { useQuery } from "@tanstack/react-query";
+import getAccounts from "@/api/accounts/getAccounts";
 const MapOne = dynamic(() => import("../Maps/MapOne"), {
   ssr: false,
 });
 
 const ECommerce: React.FC = () => {
+  const {data: accounts, isLoading: isLoadingAccounts} = useQuery(["accounts"], async () => {
+    const response = await getAccounts();
+
+    return response.data;
+  })
+
   return (
     <>
+    {
+      isLoadingAccounts ?
+      <p>Loading accounts...</p>
+      :
+      <AccountBalance data={accounts}/>
+    }
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-7.5">
         <DataCard name="sales" amount={12699} />
         <DataCard name="orders" amount={34600} />
