@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 
 export default function CreateMovement() {
   const [categories, setCategories] = useState<null | Array<Record<string, string>>>(null);
+  const [accountBalance, setAccountBalance] = useState<number | null>(null);
 
   const {
     register,
@@ -24,7 +25,7 @@ export default function CreateMovement() {
   const values = watch();
 
   // Fetch accounts
-  const { data: accountsData, isLoading } = useQuery(["accounts"], async () => {
+  const { data: accountsData, isLoading, refetch: refetchAccount } = useQuery(["accounts"], async () => {
     const response = await getAccounts();
 
     return response;
@@ -36,20 +37,6 @@ export default function CreateMovement() {
 
     return response.data;
   });
-
-  function getAllValues(obj: any): Array<any> {
-    const values = [];
-
-    for (const value of Object.values(obj)) {
-      if (typeof value === "object") {
-        values.push(...getAllValues(value)); // Recursively call for nested objects
-      } else {
-        values.push(value);
-      }
-    }
-
-    return values;
-  }
 
   function getAllValuesWithKeyNumbers(obj: any, prefix = ""): any {
     const results = [];
@@ -76,11 +63,17 @@ export default function CreateMovement() {
       const arrayWithCategories = getAllValuesWithKeyNumbers(filterByType.categories);
       setCategories(arrayWithCategories);
     }
-  }, [values.type]);
+
+    if (values.idAccount || values.idAccount != undefined) {
+      const account = accountsData.data.find((account: any) => account._id === values.idAccount);
+      setAccountBalance(account.balance);
+    }
+  }, [values.type, values.idAccount, accountsData]);
 
   // Handle submit
   const onSubmit = async (data: any) => {
     const response = await postTransaction({ data });
+    refetchAccount();
   };
 
   return (
@@ -119,6 +112,7 @@ export default function CreateMovement() {
                   )}
                 />
                 {errors?.idAccount && <span>{!errors?.idAccount?.message}</span>}
+                {accountBalance && <span>Balance: {accountBalance}</span>}
               </div>
 
               <div className="mb-5.5">
@@ -158,9 +152,7 @@ export default function CreateMovement() {
                     },
                   }}
                   render={({ field: { ref, ...field } }) => (
-                    <SearchSelect
-                      {...field}
-                    >
+                    <SearchSelect {...field}>
                       {categories ? (
                         categories.map((categories: Record<string, string>, i: number) => (
                           <SearchSelectItem key={i} value={Object.keys(categories)[0]}>

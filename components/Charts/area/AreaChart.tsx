@@ -1,4 +1,8 @@
 import { AreaChart, Card, Title } from "@tremor/react";
+import ChartFour from "../ChartFour";
+import ChartOne from "../ChartOne";
+import ChartTwo from "../ChartTwo";
+import ChartThree from "../ChartThree";
 
 const chartdata = [
   {
@@ -48,6 +52,10 @@ const Area = () => (
       colors={["indigo", "cyan"]}
       valueFormatter={valueFormatter}
     />
+    <ChartFour/>
+    <ChartOne />
+    <ChartTwo />
+    <ChartThree />
   </Card>
 );
 export default Area;

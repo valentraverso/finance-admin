@@ -3,6 +3,5 @@ export default interface IAccounts {
     name: string;
     currency: string;
     entity: string;
-    balance: string;
-    status: string;
+    balance: number;
 }

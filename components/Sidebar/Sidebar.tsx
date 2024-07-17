@@ -1,12 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import {
-  LineChartIcon,
-  MenuIcon,
-  ShoppingBag,
-  AreaChart,
   Calendar,
   User2Icon,
   LockIcon,
@@ -14,19 +9,18 @@ import {
   Component,
   Settings,
   Table2Icon,
-  FormInputIcon,
-  HomeIcon,
   LampIcon,
   SignalHigh,
   AlertCircle,
-  SwissFranc,
   MousePointerClick,
   Activity,
   Plus,
+  List,
+  TrendingDown,
+  Home,
 } from "lucide-react";
 import { useSidebar } from "./use-sidebar";
 import { cn } from "@/app/libs/utlis";
-import MenuItem from "./MenuItem";
 import LinkItem from "./LinkItem";
 import ExpandMenu from "./ExpandMenu";
 
@@ -70,20 +64,35 @@ const Sidebar = ({}: SidebarProps) => {
                 "items-center justify-center": !isSidebarOpen,
               })}
             >
-              {/* <!-- Menu Item Dashboard --> */}
               <li>
                 <ExpandMenu
-                  name="Actions"
+                  name="Transactions"
                   icon={<Activity className="h-6 w-6 hover:text-white" />}
                 >
                   <LinkItem
+                    icon={<List />}
+                    title="List transaction"
+                    href="/transaction/list"
+                  />
+                  <LinkItem
                     icon={<Plus />}
                     title="Create transaction"
-                    href="/actions/create"
+                    href="/transaction/create"
                   />
                 </ExpandMenu>
               </li>
-              {/* <!-- Menu Item Dashboard --> */}
+              <li>
+                <ExpandMenu
+                  name="Spends"
+                  icon={<TrendingDown className="h-6 w-6 hover:text-white" />}
+                >
+                  <LinkItem
+                    icon={<Home />}
+                    title="Home"
+                    href="/spends"
+                  />
+                </ExpandMenu>
+              </li>
 
               {/* <!-- Menu Item Calendar --> */}
               <li>
