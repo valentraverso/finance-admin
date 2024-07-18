@@ -4,6 +4,7 @@ import getSpends from "@/api/transactions/spends/getSpends";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
+import { colors } from "@mui/material";
 
 export default function Home() {
   // Fetch spends
@@ -13,21 +14,20 @@ export default function Home() {
     return response.data;
   });
 
-  console.log(data);
-
-  const valueFormatter = (value: number | null) => `$ ${value}`;
+  const valueFormatter = (value: number | null) => `€ ${value}`;
 
   const chartSetting = {
     yAxis: [
       {
-        label: "Quantity",
+        label: "",
+        colors: ["red"]
       },
     ],
-    series: [{ dataKey: "amount", label: "Spends by months", valueFormatter }],
+    series: [{ dataKey: "amount", label: "Spends by months", valueFormatter, colors: ["red"] }],
     height: 300,
     sx: {
       [`& .${axisClasses.directionY} .${axisClasses.label}`]: {
-        transform: "translateX(-10px)",
+        transform: "translate(-20px, 0)",
       },
     },
   };
@@ -37,10 +37,9 @@ export default function Home() {
       <div>
         <BarChart
           dataset={data}
-          xAxis={[{ scaleType: "band", dataKey: "month", tickPlacement: "middle", tickLabelPlacement: "middle" }]}
+          xAxis={[{ scaleType: "band", dataKey: "month", tickPlacement: "extremities", tickLabelPlacement: "middle" }]}
           {...chartSetting}
         />
-        
       </div>
     ))
   );

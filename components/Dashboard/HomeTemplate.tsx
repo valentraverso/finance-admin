@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import {  SimpleBar } from "@/components/Charts";
+import { SimpleBar } from "@/components/Charts";
 import ChatCard from "../Chat/ChatCard";
 import TableOne from "../Tables/TableOne";
 
@@ -12,25 +12,13 @@ import { useQuery } from "@tanstack/react-query";
 import getAccounts from "@/api/accounts/getAccounts";
 
 const HomeTemplate: React.FC = () => {
-  const {data: accounts, isLoading: isLoadingAccounts} = useQuery(["accounts"], async () => {
+  const { data: accounts, isLoading: isLoadingAccounts } = useQuery(["accounts"], async () => {
     const response = await getAccounts();
 
     return response.data;
-  })
+  });
 
-  return (
-    <>
-    {
-      isLoadingAccounts ?
-      <p>Loading accounts...</p>
-      :
-      <AccountBalance data={accounts}/>
-    }
-      <div className="space-y-5 py-5">
-        <SimpleBar />
-      </div>
-    </>
-  );
+  return <>{isLoadingAccounts ? <p>Loading accounts...</p> : <AccountBalance data={accounts} />}</>;
 };
 
 export default HomeTemplate;
